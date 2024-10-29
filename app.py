@@ -21,26 +21,28 @@ def calculate_asthma_risk(frequency_of_symptoms, nighttime_symptoms, inhaler_use
 # AI Assistant Response with Objective References
 def ai_assistant_response(query, results):
     response = ""
-    high_risk_conditions = [condition for condition, risk in results.items() if risk == "High"]
-    moderate_risk_conditions = [condition for condition, risk in results.items() if risk == "Moderate"]
+    conditions = [f"{cond}: {risk}" for cond, risk in results.items()]
+    conditions_summary = ", ".join(conditions)
 
     if "follow-up" in query.lower():
-        response += "For high-risk cases, monthly check-ins are advised. Moderate-risk cases may require quarterly check-ups. "
-        response += "Refer to American Heart Association and American Diabetes Association guidelines for specific recommendations."
+        response += "Follow-up recommendations depend on the combined risk levels of all conditions. For high-risk cases, monthly check-ins are advised; moderate-risk cases may need quarterly check-ups. "
+        response += "Healthcare providers should refer to the latest guidelines from the American Heart Association and the American Diabetes Association for detailed recommendations."
 
     elif "monitoring" in query.lower():
-        response += "For monitoring, high-risk conditions need daily self-checks. For cardiovascular risks, measure blood pressure daily; "
+        response += f"Monitoring recommendations based on combined conditions ({conditions_summary}) include: "
+        if "Cardiovascular" in results:
+            response += "- Blood pressure checks daily if high-risk cardiovascular disease is present. "
         if "Diabetes" in results:
-            response += "high-risk diabetes patients should monitor fasting glucose daily. "
-        response += "Review monitoring protocols per guidelines by the American College of Physicians."
+            response += "- Fasting glucose should be monitored daily for diabetes patients with high-risk levels. "
+        response += "Please refer to the American College of Physicians guidelines for optimal monitoring protocols."
 
     elif "self-management" in query.lower():
-        response += "Patients should follow self-management practices such as the DASH diet for cardiovascular health or carbohydrate counting for diabetes. "
-        response += "Adherence to medications and physical activity routines is essential across conditions."
+        response += "Self-management includes adherence to prescribed medications, dietary changes, and regular physical activity. "
+        response += "Patients should follow evidence-based lifestyle modifications, such as the DASH diet for cardiovascular health or carbohydrate counting for diabetes. "
 
     else:
-        response += "I'm here to assist with questions on risk stratification, monitoring, self-management, and follow-up plans for chronic conditions."
-
+        response += "I'm here to assist with questions on risk assessment, monitoring, self-management, and follow-up plans for chronic conditions."
+    
     return response
 
 # Streamlit App Layout
@@ -109,35 +111,41 @@ with tab5:
     high_risk_conditions = [condition for condition, risk in results.items() if risk == "High"]
     moderate_risk_conditions = [condition for condition, risk in results.items() if risk == "Moderate"]
 
-    # Display integrated care recommendations if multiple high or moderate risks are present
-    if high_risk_conditions or moderate_risk_conditions:
-        st.write("### Combined Risk Conditions:")
-        st.write("#### High-Risk Conditions:")
+    # Display combined risk levels
+    if high_risk_conditions:
+        st.write("### High-Risk Conditions:")
         for condition in high_risk_conditions:
             st.write(f"- **{condition}**")
 
-        st.write("#### Moderate-Risk Conditions:")
+    if moderate_risk_conditions:
+        st.write("### Moderate-Risk Conditions:")
         for condition in moderate_risk_conditions:
             st.write(f"- **{condition}**")
 
-        # Combined care recommendations based on multiple conditions
-        st.subheader("Integrated Care Recommendations")
-        st.write("- **Self-Management Support**: Follow condition-specific lifestyle modifications, such as the DASH diet for cardiovascular health and carbohydrate control for diabetes, ensuring medication adherence across all conditions.")
+    # Unified care recommendations based on multiple conditions
+    if high_risk_conditions or moderate_risk_conditions:
+        st.subheader("Personalized Care Recommendations")
+        st.write("- **Self-Management Support**: Integrate lifestyle changes, such as diet, physical activity, and medication adherence across conditions.")
         
         # Monitoring Plan
         st.subheader("Monitoring Plan")
-        st.write("- **Daily Monitoring**: For cardiovascular and diabetes risks, check blood pressure and/or blood glucose.")
-        st.write("   - COPD or asthma high-risk patients should track peak flow and FEV1 values.")
+        st.write("- **Daily Monitoring**:")
+        if "Cardiovascular" in high_risk_conditions or "Diabetes" in high_risk_conditions:
+            st.write("   - Blood pressure and/or blood glucose tracking.")
+        if "COPD" in high_risk_conditions or "Asthma" in high_risk_conditions:
+            st.write("   - Peak flow and FEV1 tracking.")
+        st.write("- **Weekly Monitoring**: Symptom diary to evaluate condition control and adjust management as needed.")
 
         # Follow-Up Plan
         st.subheader("Follow-Up Plan")
-        st.write("- **Monthly Follow-Up**: For high-risk conditions, coordinate monthly check-ins for multiple conditions to streamline care.")
-        st.write("- **Quarterly Follow-Up**: Moderate-risk conditions should have at least quarterly check-ins.")
-        
+        st.write("- **High-Risk Follow-Up**: Monthly follow-ups for high-risk conditions.")
+        st.write("- **Moderate-Risk Follow-Up**: 3-6 month check-ins for moderate-risk conditions.")
+        st.write("- **Comprehensive Follow-Up**: Consolidate follow-up appointments to address all conditions in a single visit if possible.")
+
         # Outcome Evaluation Plan
         st.subheader("Outcome Evaluation Plan")
-        st.write("- **Quarterly**: Reevaluate to ensure management effectiveness across conditions.")
-        st.write("- **Biannual**: Comprehensive review and update the care plan as needed.")
+        st.write("- **Quarterly Assessments**: Track improvements and make adjustments as necessary.")
+        st.write("- **Biannual Review**: Comprehensive evaluation for all chronic conditions to revise long-term goals.")
 
     else:
         st.success("No high-risk or moderate-risk conditions identified. Continue with preventive care.")
