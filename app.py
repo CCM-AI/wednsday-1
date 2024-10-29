@@ -20,22 +20,21 @@ def calculate_asthma_risk(frequency_of_symptoms, nighttime_symptoms, inhaler_use
 
 # Function for AI Assistant responses
 def ai_assistant_response(query):
-    # Simulated responses for common questions
     if "follow-up" in query.lower():
-        return "Follow-ups should be every 3-6 months for moderate risks, or monthly for high-risk patients. Coordinate with your healthcare provider."
+        return "For follow-ups, coordinate with your healthcare provider to determine frequency based on your conditions and risk levels."
     elif "monitoring" in query.lower():
-        return "Monitoring includes tracking vital parameters like blood pressure, glucose, and peak flow, based on your condition and risk level."
+        return "Monitoring includes tracking key parameters specific to each condition, such as blood pressure, glucose, and lung function."
     elif "self-management" in query.lower():
-        return "Self-management includes lifestyle changes, medication adherence, and daily monitoring. Focus on diet, physical activity, and avoid smoking."
+        return "Self-management involves lifestyle changes, adherence to medications, and regular monitoring of your conditions."
     else:
         return "I'm here to assist with questions on risk assessment, monitoring, self-management, and follow-up plans for chronic conditions."
 
 # Streamlit App Layout
-st.title("Comprehensive Risk Stratification, Care Plan, and AI Assistant")
-st.write("This app assesses risk for chronic conditions, provides tailored care plans, and includes an AI assistant for personalized queries.")
+st.title("Comprehensive Multi-Condition Risk Stratification, Care Plan, and AI Assistant")
+st.write("This app assesses risk for chronic conditions, provides a unified care plan for multiple conditions, and includes an AI assistant for personalized queries.")
 
 # Define tabs for each condition and the AI Assistant
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Cardiovascular Risk", "Diabetes Risk", "COPD Risk", "Asthma Risk", "Personalized Care Plan", "AI Assistant"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Cardiovascular Risk", "Diabetes Risk", "COPD Risk", "Asthma Risk", "Unified Care Plan", "AI Assistant"])
 
 # Dictionary to store risk levels for each condition
 results = {}
@@ -89,81 +88,52 @@ with tab4:
         st.write(f"**Asthma Risk Level**: {asthma_risk}")
         results["Asthma"] = asthma_risk
 
-# Personalized Care Plan Tab
+# Unified Care Plan Tab
 with tab5:
-    st.header("Personalized Care Plan")
+    st.header("Unified Care Plan for Multi-Condition Management")
 
-    for condition, risk in results.items():
-        st.subheader(f"{condition} Risk: {risk}")
+    high_risk_conditions = [condition for condition, risk in results.items() if risk == "High"]
+    moderate_risk_conditions = [condition for condition, risk in results.items() if risk == "Moderate"]
+    
+    # Display combined risk levels
+    if high_risk_conditions:
+        st.write("### High-Risk Conditions:")
+        for condition in high_risk_conditions:
+            st.write(f"- **{condition}**")
 
-        if risk == "High":
-            st.error(f"{condition} Risk is High.")
-            st.write("### Recommended Care Plan:")
-            st.write("- **Self-management support**: Comprehensive lifestyle modifications, including diet, physical activity, and medication adherence.")
-            
-            # Monitoring Plan
-            st.write("### Monitoring Plan:")
-            if condition == "Cardiovascular":
-                st.write("- Blood pressure monitoring (daily, at home)")
-                st.write("- Lipid profile every 3 months")
-            elif condition == "Diabetes":
-                st.write("- Blood glucose tracking (daily, at home)")
-                st.write("- HbA1c every 3 months")
-            elif condition == "COPD":
-                st.write("- Pulmonary function tests every 3 months")
-                st.write("- Peak flow tracking (daily)")
-            elif condition == "Asthma":
-                st.write("- Peak flow and FEV1 monthly")
-                st.write("- Symptoms diary (daily)")
+    if moderate_risk_conditions:
+        st.write("### Moderate-Risk Conditions:")
+        for condition in moderate_risk_conditions:
+            st.write(f"- **{condition}**")
 
-            # Follow-Up Plan
-            st.write("### Follow-Up Plan:")
-            st.write("- **Frequency**: Every 1-3 months with healthcare provider.")
-            st.write("- **Content**: Medication adjustment and lifestyle adherence review.")
+    # Unified care recommendations based on multiple conditions
+    if high_risk_conditions or moderate_risk_conditions:
+        st.subheader("Personalized Care Recommendations")
+        st.write("- **Self-Management Support**: Integrate lifestyle changes such as diet, physical activity, and medication adherence for all high and moderate-risk conditions.")
+        
+        # Monitoring Plan
+        st.subheader("Monitoring Plan")
+        if "Cardiovascular" in high_risk_conditions or "Diabetes" in high_risk_conditions:
+            st.write("- **Daily**: Blood pressure and/or blood glucose tracking at home.")
+        if "COPD" in high_risk_conditions or "Asthma" in high_risk_conditions:
+            st.write("- **Daily**: Peak flow and FEV1 tracking.")
+        st.write("- **Weekly**: Symptoms diary to monitor condition management and adjust if necessary.")
 
-            # Outcome Evaluation Plan
-            st.write("### Outcome Evaluation Plan:")
-            st.write("- **Frequency**: Quarterly evaluations for progress tracking.")
-            st.write("- **Objective**: Increase frequency of evaluation if no improvement.")
+        # Follow-Up Plan
+        st.subheader("Follow-Up Plan")
+        if high_risk_conditions:
+            st.write("- **Frequency**: Monthly follow-ups for high-risk conditions.")
+        if moderate_risk_conditions:
+            st.write("- **Frequency**: 3-6 months for moderate-risk conditions.")
+        st.write("- **Coordination**: Single follow-up sessions to discuss all conditions with healthcare provider.")
 
-        elif risk == "Moderate":
-            st.warning(f"{condition} Risk is Moderate.")
-            st.write("### Recommended Care Plan:")
-            st.write("- **Self-management support**: Lifestyle counseling with moderate modifications.")
+        # Outcome Evaluation Plan
+        st.subheader("Outcome Evaluation Plan")
+        st.write("- **Quarterly Assessments**: Evaluate improvement or adjustment needs across all conditions.")
+        st.write("- **Biannual Review**: Comprehensive check to adjust long-term management plan if necessary.")
 
-            # Monitoring Plan
-            st.write("### Monitoring Plan:")
-            if condition == "Cardiovascular":
-                st.write("- Blood pressure at home (weekly)")
-            elif condition == "Diabetes":
-                st.write("- Blood glucose (3 times a week)")
-            elif condition == "COPD":
-                st.write("- Peak flow weekly, review of symptoms every 3-6 months")
-            elif condition == "Asthma":
-                st.write("- Peak flow weekly, symptom tracking weekly")
-
-            # Follow-Up Plan
-            st.write("### Follow-Up Plan:")
-            st.write("- **Frequency**: Every 3-6 months with healthcare provider.")
-            st.write("- **Content**: Review lifestyle changes and adjust care as needed.")
-
-            # Outcome Evaluation Plan
-            st.write("### Outcome Evaluation Plan:")
-            st.write("- **Timeframe**: Semi-annual assessments.")
-            st.write("- **Adjustments**: Gradual increase in interventions if needed.")
-
-        else:
-            st.success(f"{condition} Risk is Low.")
-            st.write("### Recommended Care Plan:")
-            st.write("- **Self-management support**: Preventive education and maintenance of a healthy lifestyle.")
-
-            # Monitoring Plan
-            st.write("### Monitoring Plan:")
-            st.write("- **Frequency**: Annual check-ups.")
-
-            # Follow-Up Plan
-            st.write("### Follow-Up Plan:")
-            st.write("- Annual check-up.")
+    else:
+        st.success("No high-risk or moderate-risk conditions identified. Continue regular preventive care.")
 
 # AI Assistant Tab
 with tab6:
