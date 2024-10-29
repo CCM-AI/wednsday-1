@@ -18,32 +18,16 @@ def calculate_asthma_risk(frequency_of_symptoms, nighttime_symptoms, inhaler_use
     risk_score = (frequency_of_symptoms * 2) + (nighttime_symptoms * 3) + (inhaler_use * 1.5) - (fev1 * 0.1)
     return "High" if risk_score > 20 else "Moderate" if risk_score > 10 else "Low"
 
-# AI Assistant Response with Objective References
-def ai_assistant_response(query, results):
-    response = ""
-    conditions = [f"{cond}: {risk}" for cond, risk in results.items()]
-    conditions_summary = ", ".join(conditions)
-
+# Function for AI Assistant responses
+def ai_assistant_response(query):
     if "follow-up" in query.lower():
-        response += "Follow-up recommendations depend on the combined risk levels of all conditions. For high-risk cases, monthly check-ins are advised; moderate-risk cases may need quarterly check-ups. "
-        response += "Healthcare providers should refer to the latest guidelines from the American Heart Association and the American Diabetes Association for detailed recommendations."
-
+        return "For follow-ups, coordinate with your healthcare provider to determine frequency based on your conditions and risk levels."
     elif "monitoring" in query.lower():
-        response += f"Monitoring recommendations based on combined conditions ({conditions_summary}) include: "
-        if "Cardiovascular" in results:
-            response += "- Blood pressure checks daily if high-risk cardiovascular disease is present. "
-        if "Diabetes" in results:
-            response += "- Fasting glucose should be monitored daily for diabetes patients with high-risk levels. "
-        response += "Please refer to the American College of Physicians guidelines for optimal monitoring protocols."
-
+        return "Monitoring includes tracking key parameters specific to each condition, such as blood pressure, glucose, and lung function."
     elif "self-management" in query.lower():
-        response += "Self-management includes adherence to prescribed medications, dietary changes, and regular physical activity. "
-        response += "Patients should follow evidence-based lifestyle modifications, such as the DASH diet for cardiovascular health or carbohydrate counting for diabetes. "
-
+        return "Self-management involves lifestyle changes, adherence to medications, and regular monitoring of your conditions."
     else:
-        response += "I'm here to assist with questions on risk assessment, monitoring, self-management, and follow-up plans for chronic conditions."
-    
-    return response
+        return "I'm here to assist with questions on risk assessment, monitoring, self-management, and follow-up plans for chronic conditions."
 
 # Streamlit App Layout
 st.title("Comprehensive Multi-Condition Risk Stratification, Care Plan, and AI Assistant")
@@ -110,7 +94,7 @@ with tab5:
 
     high_risk_conditions = [condition for condition, risk in results.items() if risk == "High"]
     moderate_risk_conditions = [condition for condition, risk in results.items() if risk == "Moderate"]
-
+    
     # Display combined risk levels
     if high_risk_conditions:
         st.write("### High-Risk Conditions:")
@@ -125,38 +109,49 @@ with tab5:
     # Unified care recommendations based on multiple conditions
     if high_risk_conditions or moderate_risk_conditions:
         st.subheader("Personalized Care Recommendations")
-        st.write("- **Self-Management Support**: Integrate lifestyle changes, such as diet, physical activity, and medication adherence across conditions.")
+        st.write("- **Self-Management Support**: Integrate lifestyle changes such as diet, physical activity, and medication adherence for all high and moderate-risk conditions.")
         
         # Monitoring Plan
         st.subheader("Monitoring Plan")
-        st.write("- **Daily Monitoring**:")
         if "Cardiovascular" in high_risk_conditions or "Diabetes" in high_risk_conditions:
-            st.write("   - Blood pressure and/or blood glucose tracking.")
+            st.write("- **Daily**: Blood pressure and/or blood glucose tracking at home.")
         if "COPD" in high_risk_conditions or "Asthma" in high_risk_conditions:
-            st.write("   - Peak flow and FEV1 tracking.")
-        st.write("- **Weekly Monitoring**: Symptom diary to evaluate condition control and adjust management as needed.")
+            st.write("- **Daily**: Peak flow and FEV1 tracking.")
+        st.write("- **Weekly**: Symptoms diary to monitor condition management and adjust if necessary.")
 
         # Follow-Up Plan
         st.subheader("Follow-Up Plan")
-        st.write("- **High-Risk Follow-Up**: Monthly follow-ups for high-risk conditions.")
-        st.write("- **Moderate-Risk Follow-Up**: 3-6 month check-ins for moderate-risk conditions.")
-        st.write("- **Comprehensive Follow-Up**: Consolidate follow-up appointments to address all conditions in a single visit if possible.")
+        if high_risk_conditions:
+            st.write("- **Frequency**: Monthly follow-ups for high-risk conditions.")
+        if moderate_risk_conditions:
+            st.write("- **Frequency**: 3-6 months for moderate-risk conditions.")
+        st.write("- **Coordination**: Single follow-up sessions to discuss all conditions with healthcare provider.")
 
         # Outcome Evaluation Plan
         st.subheader("Outcome Evaluation Plan")
-        st.write("- **Quarterly Assessments**: Track improvements and make adjustments as necessary.")
-        st.write("- **Biannual Review**: Comprehensive evaluation for all chronic conditions to revise long-term goals.")
+        st.write("- **Quarterly Assessments**: Evaluate improvement or adjustment needs across all conditions.")
+        st.write("- **Biannual Review**: Comprehensive check to adjust long-term management plan if necessary.")
 
     else:
-        st.success("No high-risk or moderate-risk conditions identified. Continue with preventive care.")
+        st.success("No high-risk or moderate-risk conditions identified. Continue regular preventive care.")
 
 # AI Assistant Tab
 with tab6:
-    st.header("AI Assistant for Healthcare Provider Guidance")
-    query = st.text_input("Ask the AI Assistant about risk stratification, follow-up, monitoring, or self-management:")
-    if st.button("Get AI Assistance"):
-        if results:
-            ai_response = ai_assistant_response(query, results)
-            st.write(ai_response)
-        else:
-            st.write("Please complete risk assessments in previous tabs first.")
+    st.header("AI Health Assistant")
+
+    # User input for AI Assistant
+    user_query = st.text_input("Ask the AI Assistant about your health conditions, care plans, monitoring, or follow-up.", "")
+    
+    # Button to submit query
+    if st.button("Submit Query"):
+        if user_query:
+            # Generate AI response
+            response = ai_assistant_response(user_query)
+            
+            # Display conversation history
+            st.write("**You**: ", user_query)
+            st.write("**AI Assistant**: ", response)
+
+# Display assessment date and time
+st.write("### Date and Time of Assessment")
+st.write("Assessment Date:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
